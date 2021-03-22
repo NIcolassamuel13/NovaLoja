@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SalesWebMvc.Models;
 using SalesWebMvc.Services;
 using System;
 using System.Collections.Generic;
@@ -24,5 +25,20 @@ namespace SalesWebMvc.Controllers
             var list = _sellerService.FinAll(); 
             return View(list);
         }
+        //IActionResult é o tipo de retorno de todas as ações
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost] // é uma anotação dizendo quero usar o metodo post não o get
+        [ValidateAntiForgeryToken]// não permite que alguem insira conteudos maliciosos na seção
+        public IActionResult Create(Seller seller)
+        {
+            _sellerService.Insert(seller);
+            return RedirectToAction(nameof (Index));
+        }
+
+
     }
 }
