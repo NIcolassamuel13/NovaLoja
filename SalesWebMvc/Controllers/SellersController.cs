@@ -32,7 +32,7 @@ namespace SalesWebMvc.Controllers
         }
 
         [HttpPost] // é uma anotação dizendo quero usar o metodo post não o get
-        [ValidateAntiForgeryToken]// não permite que alguem insira conteudos maliciosos na seção
+        [ValidateAntiForgeryToken]// não permite que alguem insira conteudo s maliciosos na seção
         public IActionResult Create(Seller seller)
         {
             _sellerService.Insert(seller);
