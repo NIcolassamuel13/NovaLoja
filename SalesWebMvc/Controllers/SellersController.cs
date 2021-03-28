@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SalesWebMvc.Models;
+using SalesWebMvc.Models.ViewModels;
 using SalesWebMvc.Services;
 using System;
 using System.Collections.Generic;
@@ -12,23 +13,27 @@ namespace SalesWebMvc.Controllers
     {//1º criar uma dependencia para sellerservice
 
         private readonly SellerService _sellerService;
+        private readonly DepartmentService _departmentService;
 
         //construtor para injetar dependecia
-        public SellersController(SellerService sellerService)
+        public SellersController(SellerService sellerService, DepartmentService departmentService)
         {
             _sellerService = sellerService;
+            _departmentService = departmentService;
         }
 
         public IActionResult Index()
         {
             //esta operação vai retornar uma lista de seller
-            var list = _sellerService.FinAll(); 
+            var list = _sellerService.FinAll();
             return View(list);
         }
-        //IActionResult é o tipo de retorno de todas as ações
+        //IActionResult é o tipo de retorno de todas as ações 
         public IActionResult Create()
         {
-            return View();
+            var departments = _departmentService.FindAll();
+            var viewModel = new SellerFormViewModel { Departments = departments };
+           return View(viewModel);
         }
 
         [HttpPost] // é uma anotação dizendo quero usar o metodo post não o get
@@ -36,7 +41,7 @@ namespace SalesWebMvc.Controllers
         public IActionResult Create(Seller seller)
         {
             _sellerService.Insert(seller);
-            return RedirectToAction(nameof (Index));
+            return RedirectToAction(nameof(Index));
         }
 
 
