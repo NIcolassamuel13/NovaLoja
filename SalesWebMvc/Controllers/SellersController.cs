@@ -5,12 +5,14 @@ using SalesWebMvc.Services;
 using SalesWebMvc.Services.Excepitions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
 
 namespace SalesWebMvc.Controllers
 {
+
     public class SellersController : Controller
     {//1º criar uma dependencia para sellerservice
 
@@ -35,7 +37,7 @@ namespace SalesWebMvc.Controllers
         {
             var departments = _departmentService.FindAll();
             var viewModel = new SellerFormViewModel { Departments = departments };
-           return View(viewModel);
+            return View(viewModel);
         }
 
         [HttpPost] // é uma anotação dizendo quero usar o metodo post não o get
@@ -49,12 +51,15 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new {message= "Id not privided" });
+
+
             }
             var obj = _sellerService.FindById(id.Value);
-            if (id == null)
+            if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
+
             }
             return View(obj);
 
@@ -71,12 +76,12 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not privided" });
             }
             var obj = _sellerService.FindById(id.Value);
-            if (id == null)
+            if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
             return View(obj);
         }
@@ -85,15 +90,15 @@ namespace SalesWebMvc.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not privided" });
             }
             var obj = _sellerService.FindById(id.Value);
             if (obj == null)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = "Id not found" });
             }
             List<Department> departments = _departmentService.FindAll();
-            SellerFormViewModel ViewModel = new SellerFormViewModel { Seller=obj, Departments= departments };
+            SellerFormViewModel ViewModel = new SellerFormViewModel { Seller = obj, Departments = departments };
             return View(ViewModel);
         }
 
@@ -103,22 +108,39 @@ namespace SalesWebMvc.Controllers
         {
             if (id != seller.Id)
             {
-                return BadRequest();
+                return RedirectToAction(nameof(Error), new { message = "Id mismatch" });
             }
             try
             {
                 _sellerService.Update(seller);
                 return RedirectToAction(nameof(Index));
             }
-            catch(NotFoundException )
+            catch ( ApplicationException e)
             {
-                return NotFound();
+                return RedirectToAction(nameof(Error), new { message = e.Message });
             }
-            catch (DbCouncurrencyException)
-            {
-                return BadRequest();
-            }
+           
         }
+
+        public IActionResult Error(string message) // ação de erro
+        {
+            var viewModel = new ErrorViewModel
+            {
+                Message = message,
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier
+            };//usado para pegar o idinterno da requisição
+            return View(viewModel);
+
+        }
+
+
+
+
+
+
+
+
+
 
 
 
