@@ -9,19 +9,31 @@ namespace SalesWebMvc.Models
     {
         [Display(Name = "Identificador")]// altera o que vai estar escrito na tela 
         public int Id { get; set; }
+
         [Display(Name = "Nome")]
+        [Required(ErrorMessage ="{0} obrigatório")] //// obrigando o usuario a prencher o  campo com o nome
+        [StringLength(60, MinimumLength =3, ErrorMessage ="O {0} deve ter entre {2} e {1} caracteres")]// tamanho minimo e tamanho maximo do campo nome
         public string Name { get; set; }
+
+        [Required(ErrorMessage = "{0} obrigatório")]
         [DataType(DataType.EmailAddress)]
+        [EmailAddress(ErrorMessage ="Digite um Email valido")]
         public string Email { get; set; }
 
+        [Required(ErrorMessage = "{0} obrigatório")]
         [Display(Name = "Data de Nascimento")]
         [DisplayFormat(DataFormatString = "{0: dd/MM/yyyy}")]
         [DataType(DataType.Date)]
-        public DateTime BirthDate { get; set; }
+       public DateTime BirthDate { get; set; }
+        
+        
         [DisplayFormat(DataFormatString ="{0:f2}")]
         [Display (Name="Salário Base")]
+        [Required(ErrorMessage = "{0} obrigatório")]
         public double  BaseSalary { get; set; }
         [Display(Name = "Departamento")]
+
+        [Range(100.0, 50000.0, ErrorMessage ="{0} no minino {1} no maximo {2}" )]
         public Department Department { get; set; }
         [Display(Name = "Identificador Departamento")]
         public int DepartmentId { get; set; }

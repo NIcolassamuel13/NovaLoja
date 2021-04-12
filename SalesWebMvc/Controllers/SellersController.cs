@@ -35,6 +35,7 @@ namespace SalesWebMvc.Controllers
         //IActionResult é o tipo de retorno de todas as ações 
         public IActionResult Create()
         {
+          
             var departments = _departmentService.FindAll();
             var viewModel = new SellerFormViewModel { Departments = departments };
             return View(viewModel);
@@ -44,6 +45,14 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]// não permite que alguem insira conteudo s maliciosos na seção
         public IActionResult Create(Seller seller)
         {
+
+            // isso vai contecer enquanto o usuario não preencher corretamente o formulario
+            if (!ModelState.IsValid)
+            {
+                var departments = _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
+                return View(viewModel);
+            }
             _sellerService.Insert(seller);
             return RedirectToAction(nameof(Index));
         }
@@ -106,6 +115,12 @@ namespace SalesWebMvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Seller seller)
         {
+            if (!ModelState.IsValid)
+            {
+                var departments = _departmentService.FindAll();
+                var viewModel = new SellerFormViewModel { Seller = seller, Departments = departments };
+                return View(viewModel);
+            }
             if (id != seller.Id)
             {
                 return RedirectToAction(nameof(Error), new { message = "Id mismatch" });
