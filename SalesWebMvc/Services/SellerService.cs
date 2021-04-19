@@ -8,6 +8,7 @@ using SalesWebMvc.Models;
 using Microsoft.EntityFrameworkCore;
 using SalesWebMvc.Services.Excepitions;
 
+
 namespace SalesWebMvc.Services
 {
     // após criar a classe tenho que declarar ela no servico de dependencia que fica lá no startup
@@ -22,39 +23,43 @@ namespace SalesWebMvc.Services
             _context = context;
         }
         // operação findall para retornar uma lista com todos os vendedores
-        public List<Seller> FinAll()
+        public async Task<List<Seller>> FinAllAsync()
         {
-            return _context.Sellers.ToList();
+            return await _context.Sellers.ToListAsync();
         }
         // metodo para inserir um novo vendedor
-        public void Insert(Seller obj)
+        public async Task InsertAsync(Seller obj)// tranformando a operação de inserção em assincroma
         {
 
-            _context.Add(obj);
-            _context.SaveChanges();
+            _context.Add(obj);// essa operação é feita somente em memoria
+            await _context.SaveChangesAsync();// essa operação acessa o banco de dados devo colocar a versão
+            // async nela por ela fazer o acesso as banco de dados
         }
-        public Seller FindById(int id)
+        public async Task<Seller> FindByIdAsync(int id)
         {
-            return _context.Sellers.Include(obj => obj.Department).FirstOrDefault(obj => obj.Id == id);
+            return await _context.Sellers.Include(obj => obj.Department).FirstOrDefaultAsync(obj => obj.Id == id);
         }
-        public void Remove(int id)
+        public async Task RemoveAsync(int id)
         {
-            var obj = _context.Sellers.Find(id);
+            var obj = await _context.Sellers.FindAsync(id);
             _context.Sellers.Remove(obj);
-            _context.SaveChanges();
+           await _context.SaveChangesAsync();
 
         }
-        public void Update(Seller obj)
+        public async Task UpdateAsync(Seller obj)
         {
-            if (!_context.Sellers.Any(x => x.Id == obj.Id))
+            bool hasany = await _context.Sellers.AnyAsync(x => x.Id == obj.Id);// usar o anyAsync para testar
+            if (!hasany)// essa chamada serva para testa se no banco
+                //existe alguem com o mesmo Id do objeto
             {
                 throw new NotFoundException("Id not found");
             }
             try
             {
                 _context.Sellers.Update(obj);
-                _context.SaveChanges();
-            }catch(DbUpdateConcurrencyException e)
+              await  _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException e)
             {
                 throw new DbCouncurrencyException(e.Message);
             }
